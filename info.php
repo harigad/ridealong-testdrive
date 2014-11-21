@@ -22,8 +22,6 @@ where testdrive.tid = '{$_id}'";
 $testdrive = $db->selectRow($sql);
 if($testdrive){
 	
-	
-	
 }else{
 	showError();
 }
