@@ -19,18 +19,18 @@ $_from = str_replace("+1", "", $_from);
 $_from = cleanString($_from);
 $_message = $_REQUEST["Body"];
 $_email = "";
-//$_vin = "JNKCV54E14M828573";
-//$_mobile = "2147389585";
+$strs = explode(",",$_message);
 
-	$admin = $db->selectRow("select adminid from admin inner join user on admin.uid = user.id where user.mobile='{$_from}'");
+	$admin = $db->selectRow("select adminid,busid from admin inner join user on admin.uid = user.id where user.mobile='{$_from}'");
 	if($admin){
-		//proceed
+		if(($admin["busid"] === "1" || $admin["busid"] === 1) && sizeof($strs) === 3){
+			include_once 'superadmin.php'; 
+			exit();
+		}//else proceed
 	}else{
-		exit(0);
-		//logError();
+		exit(0);//logError();
 	}
 
-$strs = explode(",",$_message);
 if(sizeof($strs) === 2){
 	$strs[0] = cleanString($strs[0]);
 	$strs[1] = cleanString($strs[1]);
@@ -42,10 +42,10 @@ if(sizeof($strs) === 2){
 		$_mobile = $strs[1];
 		$_vin = $strs[0];
 	}else{
-		logError("10 digit customer mobile# and the vin# must be separated by a comma");
+		logError("error: 10 digit customer mobile# was missing");
 	}
 }else{
-	logError("10 digit customer mobile# and the vin# must be separated by a comma");
+	logError("error: 10 digit customer mobile# and the vin# must be separated by a comma");
 }
 
 $cid = getCar($_vin);
@@ -68,13 +68,8 @@ createAndSendPost($admin["adminid"],$cid,$_vin,$_mobile,$_email,$_message);
 		sendPost($shortUrl,$_mobile,$cid,$testdriveid);
 	}
 	
-	function sendPost($shortUrl,$_mobile,$cid,$testdriveid){
-		global $db;
+	function sendTwillioNewMessage($to,$body){
 		require "library/twilio-php-master/Services/Twilio.php";
- 
- 		$carDetails = getCarDetails($cid);
- 
-		// set your AccountSid and AuthToken from www.twilio.com/user/account
 		$AccountSid = "ACfbc2ac6203e446097d822d4cb17a016a";
 		$AuthToken = "c89efab591537bbc245bdcc936137482";
  
@@ -82,14 +77,23 @@ createAndSendPost($admin["adminid"],$cid,$_vin,$_mobile,$_email,$_message);
  
 		$message = $client->account->messages->create(array(
     	"From" => "+1469-606-3500",
-    	"To" => "+1214-738-9585",
-    	"Body" => "Check-In to the " . $carDetails["make"] . " " . $carDetails["model"] . " @ {$shortUrl}",
+    	"To" => "$to",
+    	"Body" => $body
 		));
-		
+	}
+	
+	
+	function sendPost($shortUrl,$_mobile,$cid,$testdriveid){
+		global $db;
+		$carDetails = getCarDetails($cid);
+ 
+ 		sendTwillioNewMessage($_mobile,"Check-In to the " . $carDetails["make"] . " " . $carDetails["model"] . " @ {$shortUrl}");
+ 
+				
 		$update["twilliosid"] = $message->sid;
 		$db->update("testdrive",$update," tid='{$testdriveid}'");
  
- 		printResponse("Request successfully sent to {$_mobile} for " .  $carDetails["make"] . " " . $carDetails["model"]);
+ 		printResponse("check-in request for " .  $carDetails["make"] . " " . $carDetails["model"] . " sent to " . formatPhone($_mobile));
  
 		// Display a confirmation message on the screen
 		//echo "Sent message {$message->sid}";
@@ -205,6 +209,10 @@ createAndSendPost($admin["adminid"],$cid,$_vin,$_mobile,$_email,$_message);
 	function cleanString($string) {
    		$string = preg_replace('/[^A-Za-z0-9\-]/', '', $string); // Removes special chars.
 		return $string;
+	}
+	
+	function formatPhone($str){
+		return "(".substr($str, 0, 3).") ".substr($str, 3, 3)."-".substr($str,6);
 	}
 	
 	function logError($e){

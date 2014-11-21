@@ -13,7 +13,7 @@ class db{
         $thisdb="694952_carkeys";
        
         $thisHost="mysql51-004.wc1.ord1.stabletransit.com";
-        //$thisHost="localhost";
+        $thisHost="localhost";
         
         $con = mysql_connect($thisHost,$dbuser,$dbpass);
         
@@ -55,6 +55,10 @@ class db{
        
         return mysql_insert_id();
     }
+	
+	function run($sql){
+		mysql_query($sql);
+	}
 
     function update($table,$data,$where){
         $setStr="";

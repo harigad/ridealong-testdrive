@@ -10,7 +10,7 @@ $dateObj = new dateObj();
 
 $_tid = $_REQUEST["tid"];
 
-$sql = "SELECT user.mobile as sender,testdrive.mobile as customer,testdrive.accepted
+$sql = "SELECT user.mobile as sender,testdrive.mobile as customer,testdrive.accepted,
 make.mid,make.name as make,make.logo,model.moid,model.name as model,
 car.*,testdrive.created as testdrivedate,
 bus_info.* 
@@ -22,7 +22,7 @@ inner join admin on testdrive.admin = admin.adminid
 inner join bus_info on admin.busid = bus_info.uid 
 inner join user on admin.uid = user.id 
 where testdrive.tid = '{$_tid}'";
-
+//$db->debug = true;
 $testdrive = $db->selectRow($sql);
 if($testdrive){
 	
@@ -48,7 +48,7 @@ function sendConfirmationToDealer($sender,$customer,$make,$model){
 		$message = $client->account->messages->create(array(
     	"From" => "+1469-606-3500",
     	"To" => $sender,
-    	"Body" => $customer . " accepted your request for " . $make . " " . $model
+    	"Body" => formatPhone($customer) . " accepted your request for " . $make . " " . $model
 		));
 		
 		$update["twilliosid"] = $message->sid;
@@ -58,5 +58,9 @@ function sendConfirmationToDealer($sender,$customer,$make,$model){
 		//echo "Sent message {$message->sid}";
 		//send message to twillio	
 	}
+
+function formatPhone($str){
+		return "(".substr($str, 0, 3).") ".substr($str, 3, 3)."-".substr($str,6);
+}
 	
 ?>
