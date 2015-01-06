@@ -14,7 +14,7 @@ $_vid = $_REQUEST["vid"];
 $sql = "SELECT bus_info.web as web ,testdrive.tid as tid
 FROM `bus_info` 
 inner join admin on bus_info.uid = admin.busid 
-inner join testdrive on admin.adminid = testdrive.admin 
+inner join testdrive on admin.adminid = testdrive.adminid 
 inner join testdrive_landing_page_logs on testdrive.tid = testdrive_landing_page_logs.tid
 where testdrive_landing_page_logs.id = '{$_vid}'";
 

@@ -1,8 +1,7 @@
 <?php header('Access-Control-Allow-Origin: *');
       header("Access-Control-Allow-Headers: Origin, X-Requested-With,X-Titanium-Id, Content-Type, Accept");
 
-error_reporting(E_ALL ^ E_NOTICE);
-ini_set('display_errors', '1');
+error_reporting(E_ALL ^ (E_NOTICE | E_DEPRECATED));
 
 session_start();
 
@@ -83,6 +82,10 @@ createAndSendPost($admin["adminid"],$cid,$_vin,$_mobile,$_email,$_message);
 	}
 	
 	
+	
+	//UCNCC:
+	//CE : Colloboration Engagement 
+	
 	function sendPost($shortUrl,$_mobile,$cid,$testdriveid){
 		global $db;
 		$carDetails = getCarDetails($cid);
@@ -159,12 +162,13 @@ createAndSendPost($admin["adminid"],$cid,$_vin,$_mobile,$_email,$_message);
 			
 			$newCardata['created'] = $dateObj->mysqlDate();
 			$newCarId = $db->insert("car",$newCarData);
+			
 			return $newCarId;
 	}
-
-	function edmundsVinLookup($vin){
-   	global $edmundsAPI;
-   	$request = "https://api.edmunds.com/api/vehicle/v2/vins/{$vin}?&fmt=json&api_key=" . $edmundsAPI;
+	
+	function edmundsGetPhotos(){
+	global $edmundsAPI;
+   	$request = "https://api.edmunds.com/v1/api/vehiclephoto/service/findphotosbystyleid?styleId={$_styleid}&fmt=json&api_key=" . $edmundsAPI;
    	$ch = curl_init();
 
 		curl_setopt($ch, CURLOPT_URL, $request);
@@ -175,6 +179,30 @@ createAndSendPost($admin["adminid"],$cid,$_vin,$_mobile,$_email,$_message);
 
 	curl_close($ch);
 	$detailJSON = json_decode($detailstring);
+	
+	}
+
+	function edmundsVinLookup($vin){
+   	global $edmundsAPI;
+   	$request = "https://api.edmunds.com/api/vehicle/v2/vins/{$vin}?&fmt=json&api_key=" . $edmundsAPI;
+   	$ch = curl_init();
+
+		curl_setopt($ch, CURLOPT_URL, $request);
+		curl_setopt($ch, CURLOPT_HEADER, 0);
+		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+		curl_setopt($ch, CURLOPT_ENCODING, 'identity');
+		$detailstring = curl_exec($ch);
+
+	curl_close($ch);
+	$detailJSON = json_decode($detailstring);
+	
+	if($detailJSON->errorType){
+		printResponse($detailJSON->message);
+		exit(0);
+	}
+	
+	$detailJSON->photos = edmundsGetPhotos($detailJSON->years->styles[0]->id);
+	
     return $detailJSON;
 	}
 
@@ -207,7 +235,7 @@ createAndSendPost($admin["adminid"],$cid,$_vin,$_mobile,$_email,$_message);
 	}
 	
 	function cleanString($string) {
-   		$string = preg_replace('/[^A-Za-z0-9\-]/', '', $string); // Removes special chars.
+   		$string = preg_replace("/[^0-9]/", '', $string);
 		return $string;
 	}
 	
@@ -228,5 +256,4 @@ createAndSendPost($admin["adminid"],$cid,$_vin,$_mobile,$_email,$_message);
     	<Message><?php echo $e ?></Message>
 		</Response>
 <?php }
-	
 ?>

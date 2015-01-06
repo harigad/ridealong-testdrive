@@ -10,7 +10,7 @@ $db = new db();
 $dateObj = new dateObj();
 
 $_tid = $_REQUEST["tid"];
-$_place = 'https://foursquare.com/v/park-place-lexus-plano/4b647487f964a52086b42ae3';
+//$_place = 'https://foursquare.com/v/park-place-lexus-plano/4b647487f964a52086b42ae3';
 
 $sql = "SELECT 
 make.mid,make.name,make.logo,model.moid,model.name,
@@ -28,10 +28,10 @@ $testdrive = $db->selectRow($sql);
 
 if($testdrive){
 	$url = 'https://www.facebook.com/dialog/share_open_graph?app_id=374335169286433
-	&display=touch&action_type=ridealongmobile:test_drive&
+	&display=touch&action_type=ridealongmobi:test_drive&
 	&redirect_uri=http://testdrive.ridealong.mobi/fb/checkin_success/' . $_tid . '&
 	place=' . $_place . '&
-	action_properties={"place":"' .  $_place . '","car":"http://testdrive.ridealong.mobi/car/' . $_tid . '"}';
+	action_properties={"car":"http://testdrive.ridealong.mobi/car/' . $_tid . '"}';
 	//echo $url;
 	header('Location: ' . $url );
 }else{

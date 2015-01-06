@@ -37,7 +37,11 @@ if($testdrive){
 	$testdrivecountObj = $db->selectRow("select count(tid) as total from testdrive where admin in (select adminid from admin where busid ='" . $testdrive["uid"] . "')");
 	if($testdrivecountObj){
 		$_testdrivecount = $testdrivecountObj[0];
+	}else{
+		$_testdrivecount = 0;
 	}
+	
+	$dealer_vehichle_count = 0;
 }
 
 //502-267-3288
@@ -73,82 +77,15 @@ $_viewid = $db->insert("testdrive_landing_page_logs",$testdrive_landing_page_log
 		<meta property="fb:app_id" content="<?php echo $app_id ?>" ></meta>
 		<meta property="og:site_name" content="Ride Along" ></meta>
 		<meta property="og:title" content="<?php echo $title ?>" ></meta>
-		<meta property="og:type" content="ridealongmobile:car" ></meta>
+		<meta property="og:type" content="ridealongmobi:car" ></meta>
 		<meta property="og:url" content="<?php echo $url ?>" ></meta>
 		<meta property="og:image" content="<?php echo $image ?>" ></meta>
 		<meta property="og:description" content="<?php echo $desc ?>" ></meta>
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<link rel="stylesheet" type="text/css" media='(min-width: 640px)' href="css/pc.css" />
+		<link rel="stylesheet" type="text/css" media='(min-width: 100px) and (max-width: 640px)' href="css/mobile.css" />
 		<script src="js/angular.min.js"></script>
 		<script src="https://maps.googleapis.com/maps/api/js?v=3.exp"></script>
-		<style>
-		   a{
-		   	text-decoration:none;
-		   }
-		    body{
-		    	height:100%;margin-top:0px;margin-left:0px;margin-right:0px;
-		    	font-family:Tahoma;
-				letter-spacing:1.5px;
-		    }
-			
-			#left{
-				left:0;display:relative;
-				top:0;
-				width:49%;height:auto;
-				background-color:#fff;
-			}
-			
-			#right{
-				right:0;position:fixed;top:0;
-				width:50%;height:100%;
-				background-color:#eee
-			}
-			#map{
-				width:100%;height:100%;position:relative;
-			}
-			#infoWindow{
-				height:auto;width:240px;
-				background-color:#fff;
-				border-radius:8px;
-			}
-			#info_title{
-				font-size:18px;
-				color:#4590D1;
-			}
-			#info_testdrives{
-				font-size:12px;
-				color:#999;
-			}
-			#info_schedule{
-				font-size:12px;
-				color:#4590D1;
-			}
-			.logo_container{
-				width:68px;height:68px;display:inline-block;
-				background-color:#333;border-radius:38;
-				border:#666;
-				border-style: solid;
-    			border-width: 4px;vertical-align: middle;
-			}
-			.title{
-				font-size:80px;
-				color:#555;vertical-align: middle;margin-left:10px;padding-top:0px;padding-bottom:0px;margin-top:0px;margin-bottom:0px;
-			}
-			
-			.icon_container{
-				width:76px;height:76px;display:inline-block;
-				background-color:#fff;
-				vertical-align: middle;
-			}
-			
-			.icon{
-				width:48px;height:48px;margin:14px;vertical-align: middle;
-			}
-			
-			.info_item{
-				font-size:48px;font-family:"Tahoma";font-weight:50;
-				color:#cecece;vertical-align: middle;margin-left:10px;padding-top:0px;padding-bottom:0px;margin-top:0px;margin-bottom:0px;
-			}
-			
-		</style>
 		<script>
 		
 		(function(){
@@ -171,13 +108,12 @@ $_viewid = $db->insert("testdrive_landing_page_logs",$testdrive_landing_page_log
 			app.controller("dealer_info_controller",function(){
 				this.info = {
 					name:"<?php echo $testdrive["dealer"] ?>",
-					testdrive_count:28,
-					vehichle_count:15,
+					testdrive_count:<?php echo $_testdrivecount ?>,
 					make:"<?php echo $testdrive["make"] ?>",
 					model:"<?php echo $testdrive["model"] ?>"
 				};
 				
-				this.vehichle_count = 18;
+				this.vehichle_count = <?php echo $dealer_vehichle_count ?>;
 			});
 			
 			google.maps.event.addDomListener(window, 'load', initialize);
@@ -207,17 +143,16 @@ $_viewid = $db->insert("testdrive_landing_page_logs",$testdrive_landing_page_log
 	<body>
 		<div id="right" >
 				<div id="map" ></div>
-			</div>
+		</div>
 		<div id="main" >
 			<div id="left" >
-				<div style="width:10%;display:inline-block;" ></div>
-					<img src="../assets/white_car_large.jpg" style="width:80%;" >
-				<div style="width:10%;display:inline-block;" ></div>
-				<div style="width:10%;" ></div>
-				<div id="logo_and_title_container" style="padding-left:10px;padding-right:10px;" ng-controller="car_details_controller as car"  >
+				<div id="left_arrow_btn" ></div>
+					<img src="../assets/white_car_large.jpg" id="photo" >
+				<div id="right_arrow_btn" ></div>
+				<div id="logo_and_title_container"  ng-controller="car_details_controller as car"  >
 					<div>
 						<div class="logo_container" >
-							<img src="../assets/logos/48/{{car.car.logo}}" style="width:48px;height:48px;margin:10px;">
+							<img src="../assets/logos/48/{{car.car.logo}}" id="logo" />
 						</div>
 						<span class="title">
 							{{car.car.model}}
@@ -277,7 +212,9 @@ $_viewid = $db->insert("testdrive_landing_page_logs",$testdrive_landing_page_log
 			<div id="infoWindow">
 				<a href="clicks.php?action=dealer&vid=<?php echo $_viewid ?>" ><div id="info_title" >{{dealer.info.name}}</div></a>
 					<div id="info_testdrives" ng-show="dealer.info.testdrive_count" >{{dealer.info.testdrive_count}} testdrives</div>
-				<a href="clicks.php?action=stock&vid=<?php echo $_viewid ?>" ><div id="info_schedule" ng-show="dealer.vehichle_count" >{{dealer.vehichle_count}} {{dealer.info..make}} {{dealer.info.model}}'s in stock</div></a>
+				<a href="clicks.php?action=stock&vid=<?php echo $_viewid ?>" ><div id="info_schedule" ng-show="dealer.vehichle_count" >
+					{{dealer.vehichle_count}} {{dealer.info.make}} {{dealer.info.model}}'s in stock 
+				</div></a>
 				</a>
 			</div>
 		</div>

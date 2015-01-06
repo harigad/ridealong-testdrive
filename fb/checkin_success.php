@@ -1,6 +1,5 @@
 <?php
-error_reporting(E_ALL ^ E_NOTICE);
-ini_set('display_errors', '1');
+error_reporting(E_ALL ^ (E_NOTICE | E_DEPRECATED));
 
 include_once '../services/core/dateClass.php';
 include_once '../services/core/db.php';
@@ -9,6 +8,7 @@ $db = new db();
 $dateObj = new dateObj();
 
 $_tid = $_REQUEST["tid"];
+$error_code = $_REQUEST["error_code"];
 
 $sql = "SELECT user.mobile as sender,testdrive.mobile as customer,testdrive.accepted,
 make.mid,make.name as make,make.logo,model.moid,model.name as model,
@@ -24,19 +24,19 @@ inner join user on admin.uid = user.id
 where testdrive.tid = '{$_tid}'";
 //$db->debug = true;
 $testdrive = $db->selectRow($sql);
-if($testdrive){
-	
+
+if($testdrive && isset($error_code) && $error_code!==""){
+    header("Location: ../car/{$_tid}?status=0");
+}else if($testdrive){
 	$update["fbpostid"] = $_REQUEST["post_id"];
 	$update["accepted"] = $dateObj->mysqlDate();
 	$db->update("testdrive",$update,"tid='{$_tid}'");
-	
-	sendConfirmationToDealer($testdrive['sender'],$testdrive['customer'],$testdrive['make'],$testdrive['model']);
-}
-
-
+	sendConfirmationToDealer($testdrive['sender'],$testdrve['customer'],$testdrive['make'],$testdrive['model']);
+	header("Location: ../car/{$_tid}?status=1");
+}	
 
 function sendConfirmationToDealer($sender,$customer,$make,$model){
-		global $db;
+		global $db,$_tid;
 		require "../services/twillio/library/twilio-php-master/Services/Twilio.php";
  	
 		// set your AccountSid and AuthToken from www.twilio.com/user/account
@@ -52,7 +52,7 @@ function sendConfirmationToDealer($sender,$customer,$make,$model){
 		));
 		
 		$update["twilliosid"] = $message->sid;
-		$db->update("testdrive",$update," tid='{$testdriveid}'");
+		$db->update("testdrive",$update," tid='{$_tid}'");
  	
 		// Display a confirmation message on the screen
 		//echo "Sent message {$message->sid}";
@@ -62,5 +62,4 @@ function sendConfirmationToDealer($sender,$customer,$make,$model){
 function formatPhone($str){
 		return "(".substr($str, 0, 3).") ".substr($str, 3, 3)."-".substr($str,6);
 }
-	
 ?>

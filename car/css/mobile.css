@@ -1,0 +1,100 @@
+         a{
+		   	text-decoration:none;
+		   }
+		    body{
+		    	height:auto;margin-top:0px;margin-left:0px;margin-right:0px;
+		    	font-family:Tahoma;
+				letter-spacing:1.5px;
+		    }
+		    
+		    #right{
+				top:0;position:absolute;left:0;
+				width:100%;height:120px;
+				background-color:#eee
+			}
+			
+			#main{
+				top:120px;position:absolute;width:100%;
+			}
+			
+			#left{
+				left:0;display:relative;
+				top:0;
+				width:100%;height:auto;
+				background-color:#fff;
+			}
+			
+			
+			#map{
+				width:100%;height:100%;position:relative;
+			}
+			#infoWindow{
+				height:auto;width:150px;
+				background-color:#fff;
+				border-radius:8px;
+			}
+			#info_title{
+				font-size:14px;
+				color:#4590D1;
+			}
+			#info_testdrives{
+				font-size:12px;
+				color:#999;
+			}
+			#info_schedule{
+				font-size:11px;
+				color:#4590D1;
+			}
+		    
+		    
+		    #left_arrow_btn{
+		    	width:0%;display:inline-block;
+		    }
+		    
+		    
+		    #photo{
+		    	width:100%;
+		    }
+		    
+		    #right_arrow_btn{
+		    	width:0%;display:inline-block;
+		    }
+		    
+			#logo_and_title_container{
+				padding-left:10px;
+				padding-right:10px;
+			}
+			
+			#logo{
+				width:30px;height:30px;margin:10px;
+			}
+			
+			
+			.logo_container{
+				width:50px;height:50px;display:inline-block;
+				background-color:#333;border-radius:26;
+				border:#666;
+				border-style: solid;
+    			border-width: 2px;vertical-align: middle;
+			}
+			.title{
+				font-size:40px;
+				color:#555;vertical-align: middle;margin-left:10px;padding-top:0px;padding-bottom:0px;margin-top:0px;margin-bottom:0px;
+			}
+			
+			.icon_container{
+				width:50px;height:50px;display:inline-block;
+				background-color:#fff;
+				vertical-align: middle;
+			}
+			
+			.icon{
+				width:30px;height:30px;margin:10px;vertical-align: middle;
+			}
+			
+			.info_item{
+				font-size:26px;font-family:"Tahoma";
+				color:#cecece;vertical-align: middle;margin-left:10px;padding-top:0px;padding-bottom:0px;margin-top:0px;margin-bottom:0px;
+			}
+			
+			
